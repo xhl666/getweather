@@ -1,15 +1,11 @@
-package db;
+package com.getweather.android.db;
 
-import org.litepal.exceptions.DataSupportException;
+import org.litepal.crud.LitePalSupport;
 
-public class Province extends DataSupportException {
+public class Province extends LitePalSupport {
     private int id;
     private String provinceName;
     private int provinceCode;
-
-    public Province(String errorMessage) {
-        super(errorMessage);
-    }
 
     public int getId() {
         return id;
