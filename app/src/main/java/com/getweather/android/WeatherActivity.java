@@ -53,6 +53,9 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView sportText;
     private ImageView bingPicImg;
 
+    //定义全局变量mweatherId,以此解决一刷新就会回到一开始选的城市
+    private String mweatherId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +64,7 @@ public class WeatherActivity extends AppCompatActivity {
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
+
         setContentView(R.layout.activity_weather);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -89,10 +93,13 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
         if (weatherString != null){
+            //有缓存时直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
-            weatherId = weather.basic.weatherId;
+            mweatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
         } else {
+            //无缓存时去服务器查询天气
+            //mweatherId = getIntent().getStringExtra("weather_id");
             weatherId = getIntent().getStringExtra("weather_id");
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
@@ -100,7 +107,7 @@ public class WeatherActivity extends AppCompatActivity {
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(weatherId);
+                requestWeather(mweatherId);
             }
         });
         String bingPic = prefs.getString("bing_pic", null);
@@ -110,9 +117,11 @@ public class WeatherActivity extends AppCompatActivity {
             loadBingPic();
         }
     }
-
+    //根据天气id请求城市天气信息
     public void requestWeather(final String weatherId){
         String weatherUrl = "http://guolin.tech/api/weather?cityid=" + weatherId + "&key=bc0418b57b2d4918819d3974ac1285d9";
+        mweatherId = weatherId;
+        //向服务器发请求，服务器会将天气信息以JSON格式返回来
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -130,10 +139,12 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 final String responseText = response.body().string();
+                //调用Utility.handleWeatherResponse()将返回的JSON数据转换成Weather对象
                 final Weather weather = Utility.handleWeatherResponse(responseText);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        //这里的ok是判断status的状态
                         if(weather != null && "ok".equals(weather.status)){
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseText);
@@ -173,7 +184,7 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
     }
-
+    //处理并展示Weather实体类中的数据
     private void showWeatherInfo(Weather weather){
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1];

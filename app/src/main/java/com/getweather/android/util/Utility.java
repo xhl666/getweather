@@ -21,7 +21,7 @@ public class Utility {
                 for(int i = 0;i < allProvinces.length(); i++){
                     JSONObject provinceObject = allProvinces.getJSONObject(i);
                     Province province = new Province();
-                    province.setProvinceName(provinceObject.getString("name"));
+                    province.setProvinceName(provinceObject.getString("provinceName"));
                     province.setProvinceCode(provinceObject.getInt("id"));
                     province.save();
                 }
@@ -40,8 +40,8 @@ public class Utility {
                 for (int i = 0;i < allCities.length();i++){
                     JSONObject cityObjest = allCities.getJSONObject(i);
                     City city = new City();
-                    city.setCityName(cityObjest.getString("name"));
-                    city.setCityCode(cityObjest.getInt("id"));
+                    city.setCityName(cityObjest.getString("cityName"));
+                    city.setCityCode(cityObjest.getInt("cityCode"));
                     city.setProvinceId(provinceId);
                     city.save();
                 }
@@ -60,8 +60,8 @@ public class Utility {
                 for (int i = 0;i < allCounties.length();i++){
                     JSONObject countyObject = allCounties.getJSONObject(i);
                     County county = new County();
-                    county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getString("weather_id"));
+                    county.setCountyName(countyObject.getString("countyName"));
+                    county.setWeatherId(countyObject.getString("weatherId"));
                     county.setCityId(cityId);
                     county.save();
                 }
@@ -72,12 +72,13 @@ public class Utility {
         }
         return false;
     }
-
+    //将返回的JSON格式数据解析成Weather实体类
     public static Weather handleWeatherResponse(String response){
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
             String weatherContent = jsonArray.getJSONObject(0).toString();
+            //由于之前已经定义过相应的GSON实体类，所以直接使用fromJson()将JSON数据转化为Weather对象
             return new Gson().fromJson(weatherContent, Weather.class);
         } catch (Exception e){
             e.printStackTrace();

@@ -49,6 +49,7 @@ public class ChooseAreaFragment extends Fragment {
     private List<City> cityList;
     private List<County> countyList;
 
+    //选中的省市县
     private Province selectedProvince;
     private City selectedCity;
     private int currentLevel;
@@ -104,6 +105,7 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
+        //从这里开始加载省级数据
         queryProvinces();
     }
 
@@ -120,7 +122,7 @@ public class ChooseAreaFragment extends Fragment {
             listView.setSelection(0);
             currentLevel = LEVEL_PROVINCE;
         }else{
-            String address = "http://guolin.tech/api/china";
+            String address = "http://10.10.169.11:8080/ASWPI_war_exploded/China/";
             queryFromServer(address, "province");
         }
     }
@@ -139,7 +141,7 @@ public class ChooseAreaFragment extends Fragment {
             currentLevel = LEVEL_CITY;
         }else {
             int provinceCode = selectedProvince.getProvinceCode();
-            String address = "http://guolin.tech/api/china/" + provinceCode;
+            String address = "http://10.10.169.11:8080/ASWPI_war_exploded/China/"+provinceCode;
             queryFromServer(address, "city");
         }
     }
@@ -159,7 +161,7 @@ public class ChooseAreaFragment extends Fragment {
         }else {
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectedCity.getCityCode();
-            String address = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
+            String address = "http://10.10.169.11:8080/ASWPI_war_exploded/China/"+provinceCode+"/"+cityCode;
             queryFromServer(address, "county");
         }
     }
